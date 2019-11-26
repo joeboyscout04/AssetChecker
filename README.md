@@ -87,7 +87,11 @@ The following command line arguments are available to the script.
 --catalog (optional) Path to your asset catalog.  By default, it will search all asset catalogs in your $SRCROOT
 --source (optional) Absolute path to your source directory.  Defaults to $SRCROOT
 --ignore (optional) A comma-separated list of assets which should be ignored by the script (no file extension needed)
+--ignore_file (optional) Path to the ignore file.  If this option is used, --ignore option will be ignored.  By default, $SRCROOT/.assetchecker.
 ```
+
+## Ignore file
+You can add assets to ignore to a `.assetchecker` file at the root of your project.   Put the name of each asset to ignore on a separate line.  Regex values are also accepted. 
 
 ## False positives
 Sometimes you're building the asset names dynamically so there is no way for AssetChecker to find out statically by looking at the codebase.

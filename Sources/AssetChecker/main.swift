@@ -3,9 +3,10 @@
 import Foundation
 
 // Configure me \o/
-var sourcePathOption:String?
-var ignoredUnusedNames = [String]()
+var sourcePathOption: String?
 var catalogPath: String?
+var ignoredUnusedNames = [String]()
+var ignoreFilePath: String?
 
 // MARK : - End Of Configurable Section
 
@@ -29,12 +30,16 @@ for arg in commandLineArguments {
             sourcePathOption = sourcePath
         }
     case "catalog":
-        if let catelog = arg.value, catalogPath == nil {
-            catalogPath = catelog
+        if let catalog = arg.value, catalogPath == nil {
+            catalogPath = catalog
         }
     case "ignore":
         if let ignoreAssetsNames = arg.value, ignoredUnusedNames.isEmpty {
             ignoredUnusedNames = ignoreAssetsNames.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        }
+    case "ignore_file":
+        if let ignoreFile = arg.value, ignoreFilePath == nil {
+            ignoreFilePath = ignoreFile
         }
     default:
         break
@@ -65,6 +70,23 @@ let assetCatalogPaths: [String] = {
     }
 }()
 
+/// Process the ignore file
+private func processIgnoreFile() {
+    guard let ignorePath = ignoreFilePath,
+        let data = try? String(contentsOfFile: ignorePath, encoding: .utf8) else { return }
+    ignoredUnusedNames = data.components(separatedBy: .newlines)
+}
+processIgnoreFile()
+
+/// If the asset should be ignored
+private func isIgnored(_ assetName: String) -> Bool {
+    let ignoreCount = ignoredUnusedNames.reduce(0) { (sum, ignore) -> Int in
+        let ignoreRegex = try? NSRegularExpression(pattern: ignore, options: [])
+        return sum + (ignoreRegex?.numberOfMatches(in: assetName, options: [], range: NSRange(location: 0, length: assetName.count)) ?? 0)
+    }
+    return ignoreCount > 0
+}
+
 print("Searching sources in \(sourcePath) for assets in \(assetCatalogPaths)")
 
 /// List assets in found asset catalogs
@@ -78,11 +100,12 @@ private func listAssets() -> [(asset: String, catalog: String)] {
             .filter { $0.hasSuffix(extensionName) }                             // Is Asset
             .map { $0.replacingOccurrences(of: ".\(extensionName)", with: "") } // Remove extension
             .map { $0.components(separatedBy: "/").last ?? $0 }                 // Remove folder path
-            .map { (asset: $0,catalog: catalog)}
+            .filter { !isIgnored($0) }                                          // Remove ignored files
+            .map { (asset: $0, catalog: catalog)}
     }
 }
 
-/// List Assets used in the codebase
+/// List Assets used in the codebase, with the asset name as the key
 private func listUsedAssetLiterals() -> [String: [String]]  {
     let enumerator = FileManager.default.enumerator(atPath:sourcePath)
     
@@ -145,11 +168,11 @@ let usedAssets = listUsedAssetLiterals()
 let usedAssetNames = Set(usedAssets.keys + ignoredUnusedNames)
 
 // Generate Warnings for Unused Assets
-let unused = availableAssets.filter({ (asset, catalog) -> Bool in !usedAssetNames.contains(asset) && !ignoredUnusedNames.contains(asset) })
+let unused = availableAssets.filter { (asset, catalog) -> Bool in !usedAssetNames.contains(asset)}
 unused.forEach { print("\($1):: warning: [Asset Unused] \($0)") }
 
 // Generate Error for broken Assets
-let broken = usedAssets.filter { (assetName, references) -> Bool in !availableAssetNames.contains(assetName) }
+let broken = usedAssets.filter { (assetName, references) -> Bool in !availableAssetNames.contains(assetName)}
 broken.forEach { print("\($1.first ?? $0):: error: [Asset Missing] \($0)") }
 
 if broken.count > 0 {

@@ -9,6 +9,7 @@ swiftFile="${DIR}/Sources/AssetChecker/main.swift"
 SOURCE=$SRCROOT
 CATALOG=""
 IGNORE=""
+IGNORE_FILE=$SRCROOT/.assetchecker
 
 while [[ $# > 0 ]]
 do
@@ -28,6 +29,11 @@ case $key in
     shift # past argument
     ;;
     *)
+    -f|--ignore_file)
+    IGNORE_FILE="$2"
+    shift # past argument
+    ;;
+    *)
 
     # unknown option
     ;;
@@ -35,6 +41,6 @@ esac
 shift # past argument or value
 done
 
-cmd="$swiftFile source:$SOURCE catalog:$CATALOG ignore:$IGNORE"
+cmd="$swiftFile source:$SOURCE catalog:$CATALOG ignore:$IGNORE ignore_file:$IGNORE_FILE"
 echo $cmd
 $cmd
