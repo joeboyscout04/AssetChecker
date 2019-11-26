@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "AssetChecker",
+        "repositoryURL": "https://github.com/joeboyscout04/AssetChecker",
+        "state": {
+          "branch": "swift-pm",
+          "revision": "67b32c8362226f33c406bbc604031a3b1c040f88",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
