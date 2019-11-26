@@ -100,7 +100,6 @@ private func listAssets() -> [(asset: String, catalog: String)] {
             .filter { $0.hasSuffix(extensionName) }                             // Is Asset
             .map { $0.replacingOccurrences(of: ".\(extensionName)", with: "") } // Remove extension
             .map { $0.components(separatedBy: "/").last ?? $0 }                 // Remove folder path
-            .filter { !isIgnored($0) }                                          // Remove ignored files
             .map { (asset: $0, catalog: catalog)}
     }
 }
@@ -168,11 +167,11 @@ let usedAssets = listUsedAssetLiterals()
 let usedAssetNames = Set(usedAssets.keys + ignoredUnusedNames)
 
 // Generate Warnings for Unused Assets
-let unused = availableAssets.filter { (asset, catalog) -> Bool in !usedAssetNames.contains(asset)}
+let unused = availableAssets.filter { (asset, catalog) -> Bool in !usedAssetNames.contains(asset) && !isIgnored(asset) }
 unused.forEach { print("\($1):: warning: [Asset Unused] \($0)") }
 
 // Generate Error for broken Assets
-let broken = usedAssets.filter { (assetName, references) -> Bool in !availableAssetNames.contains(assetName)}
+let broken = usedAssets.filter { (assetName, references) -> Bool in !availableAssetNames.contains(assetName) && !isIgnored(assetName) }
 broken.forEach { print("\($1.first ?? $0):: error: [Asset Missing] \($0)") }
 
 if broken.count > 0 {

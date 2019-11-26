@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-               BuildableName = "AssetChecker_Example.app"
-               BlueprintName = "AssetChecker_Example"
-               ReferencedContainer = "container:AssetChecker.xcodeproj">
+               BuildableName = "AssetCheckerExample_Example.app"
+               BlueprintName = "AssetCheckerExample_Example"
+               ReferencedContainer = "container:AssetCheckerExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "AssetChecker_Tests.xctest"
-               BlueprintName = "AssetChecker_Tests"
-               ReferencedContainer = "container:AssetChecker.xcodeproj">
+               BuildableName = "AssetCheckerExample_Tests.xctest"
+               BlueprintName = "AssetCheckerExample_Tests"
+               ReferencedContainer = "container:AssetCheckerExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "AssetChecker_Example.app"
-            BlueprintName = "AssetChecker_Example"
-            ReferencedContainer = "container:AssetChecker.xcodeproj">
+            BuildableName = "AssetCheckerExample_Example.app"
+            BlueprintName = "AssetCheckerExample_Example"
+            ReferencedContainer = "container:AssetCheckerExample.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -56,9 +56,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "AssetChecker_Tests.xctest"
-               BlueprintName = "AssetChecker_Tests"
-               ReferencedContainer = "container:AssetChecker.xcodeproj">
+               BuildableName = "AssetCheckerExample_Tests.xctest"
+               BlueprintName = "AssetCheckerExample_Tests"
+               ReferencedContainer = "container:AssetCheckerExample.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -78,9 +78,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "AssetChecker_Example.app"
-            BlueprintName = "AssetChecker_Example"
-            ReferencedContainer = "container:AssetChecker.xcodeproj">
+            BuildableName = "AssetCheckerExample_Example.app"
+            BlueprintName = "AssetCheckerExample_Example"
+            ReferencedContainer = "container:AssetCheckerExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -95,9 +95,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "AssetChecker_Example.app"
-            BlueprintName = "AssetChecker_Example"
-            ReferencedContainer = "container:AssetChecker.xcodeproj">
+            BuildableName = "AssetCheckerExample_Example.app"
+            BlueprintName = "AssetCheckerExample_Example"
+            ReferencedContainer = "container:AssetCheckerExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
