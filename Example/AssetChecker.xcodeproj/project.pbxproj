@@ -512,7 +512,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/joeboyscout04/AssetChecker";
 			requirement = {
-				branch = "swift-pm";
+				branch = master;
 				kind = branch;
 			};
 		};

@@ -5,8 +5,8 @@
         "package": "AssetChecker",
         "repositoryURL": "https://github.com/joeboyscout04/AssetChecker",
         "state": {
-          "branch": "swift-pm",
-          "revision": "a03995a9305d7b63dfedd1027ac4b7bdfda623f7",
+          "branch": "master",
+          "revision": "99f455d4593c42f6c77e5eb16339c6ea382ea6b5",
           "version": null
         }
       }
