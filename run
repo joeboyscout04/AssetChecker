@@ -28,7 +28,6 @@ case $key in
     IGNORE="$2"
     shift # past argument
     ;;
-    *)
     -f|--ignore_file)
     IGNORE_FILE="$2"
     shift # past argument
