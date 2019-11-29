@@ -9,7 +9,7 @@ swiftFile="${DIR}/Sources/AssetChecker/main.swift"
 SOURCE=$SRCROOT
 CATALOG=""
 IGNORE=""
-IGNORE_FILE="${SRCROOT}/.assetchecker"
+IGNORE_FILE="${SRCROOT}/.assetcheckerignore"
 
 while [[ $# > 0 ]]
 do

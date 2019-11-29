@@ -91,7 +91,7 @@ The following command line arguments are available to the script.
 ```
 
 ## Ignore file
-You can add assets to ignore to a `.assetchecker` file at the root of your project.   Put the name of each asset to ignore on a separate line.  Regex values are also accepted. 
+You can add names of assets to ignore to a `.assetcheckerignore` file at the root of your project.   Put the name of each asset to ignore on a separate line, without any path or file extension.  Regex values are also accepted.  
 
 ## False positives
 Sometimes you're building the asset names dynamically so there is no way for AssetChecker to find out statically by looking at the codebase.
