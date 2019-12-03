@@ -60,7 +60,17 @@ Add the package to your project by selecting `File`->`Swift Package`->`Add Packa
 Then add the `Run Script` phase in Xcode as follows:
 
 ```shell
-${BUILD_ROOT}/../../SourcePackages/checkouts/AssetChecker/run
+# Go to the build root and search up the chain to find the Derived Data Path where the source packages are checked out.
+SOURCE_PACKAGES_PARENT="${BUILD_ROOT}"
+while ! [ -d "${SOURCE_PACKAGES_PARENT}/SourcePackages" ]; do
+  if [ "${SOURCE_PACKAGES_PARENT}" = / ]; then
+    echo >&2 "error: Unable to locate SourcePackages directory from BUILD_ROOT: '${BUILD_ROOT}'"
+    exit 1
+  fi
+  SOURCE_PACKAGES_PARENT="$(dirname "${SOURCE_PACKAGES_PARENT}")"
+done
+
+${SOURCE_PACKAGES_PARENT}/SourcePackages/checkouts/AssetChecker/run
 ```
 
 ### Manually
