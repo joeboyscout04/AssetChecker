@@ -45,7 +45,6 @@ Installation available via Cocoapods.  Add the following to your Podfile:
 ```shell
 pod 'AssetChecker'
 ```
-Or copy the script into your project.
 
 Add the following `Run Script` in XCode, this will run the script at every build.
 If you installed via Cocoapods, you can use the following script:
@@ -54,40 +53,23 @@ If you installed via Cocoapods, you can use the following script:
 ${PODS_ROOT}/AssetChecker/run
 ```
 
-### Swift Package manager (Xcode 11)
-Add the package to your project by selecting `File`->`Swift Package`->`Add Package Dependency`
-
-Then add the `Run Script` phase in Xcode as follows:
+### [Mint](https://github.com/yonaskolb/mint)
+```
+$ mint install github_name/repo_name
+```
+Add the following `Run Script` in XCode, this will run the script at every build.
 
 ```shell
-# Go to the build root and search up the chain to find the Derived Data Path where the source packages are checked out.
-SOURCE_PACKAGES_PARENT="${BUILD_ROOT}"
-while ! [ -d "${SOURCE_PACKAGES_PARENT}/SourcePackages" ]; do
-  if [ "${SOURCE_PACKAGES_PARENT}" = / ]; then
-    echo >&2 "error: Unable to locate SourcePackages directory from BUILD_ROOT: '${BUILD_ROOT}'"
-    exit 1
-  fi
-  SOURCE_PACKAGES_PARENT="$(dirname "${SOURCE_PACKAGES_PARENT}")"
-done
-
-${SOURCE_PACKAGES_PARENT}/SourcePackages/checkouts/AssetChecker/run
+mint run assetchecker
 ```
 
 ### Manually
-You can also just copy the main.swift into your project.  Use the path of where you copied AssetChecker script:
+You can also just clone this package into your Xcode repository, then drag the this folder into your Xcode project.  This will create a reference to AssetChecker's swift package. 
 
+Add the following `Run Script` in XCode, this will run the script at every build.
 ```shell
-${SRCROOT}/{PATH_TO_THE_SCRIPT}/main.swift ${SRCROOT}/Sources
+/usr/bin/xcrun --sdk macosx swift run path/to/assetchecker
 ```
-In this example your source files are located in `/Sources`.
-
-And configure top section of the script :
-```swift
-// Configure me \o/
-let sourcePath = "/Sources"
-let ignoredUnusedNames = [String]()
-```
-Run and Enjoy \o/
 
 ## Script Arguments
 
@@ -97,7 +79,7 @@ The following command line arguments are available to the script.
 --catalog (optional) Path to your asset catalog.  By default, it will search all asset catalogs in your $SRCROOT
 --source (optional) Absolute path to your source directory.  Defaults to $SRCROOT
 --ignore (optional) A comma-separated list of assets which should be ignored by the script (no file extension needed)
---ignore_file (optional) Path to the ignore file.  If this option is used, --ignore option will be ignored.  By default, $SRCROOT/.assetchecker.
+--ignoreFile (optional) Path to the ignore file.  If this option is used, --ignore option will be ignored.  By default, $SRCROOT/.assetcheckerignore.
 ```
 
 ## Ignore file
