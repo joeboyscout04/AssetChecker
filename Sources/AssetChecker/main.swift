@@ -9,7 +9,7 @@ public struct AssetChecker: ParsableCommand {
         version: "0.3.1")
     
     @Option(name: .long, help: "The path to the source code you want to check.")
-    private var sourcePath: String = FileManager.default.currentDirectoryPath
+    private var source: String = FileManager.default.currentDirectoryPath
 
     @Option(name: .long, help: "The asset catalog to check for extra assets.  Omitting this argument will search for asset catalogs.")
     private var catalog: String?
@@ -30,7 +30,7 @@ public struct AssetChecker: ParsableCommand {
     
     mutating public func run() throws {
         processIgnoreFile()
-        print("Searching sources in \(sourcePath) for assets in \(assetCatalogPaths)")
+        print("Searching sources in \(source) for assets in \(assetCatalogPaths)")
         let availableAssets = listAssets()
         let availableAssetNames = Set(availableAssets.map{$0.asset} )
         let usedAssets = listUsedAssetLiterals()
@@ -54,7 +54,7 @@ public struct AssetChecker: ParsableCommand {
             return [providedCatalog]
         } else {
             // detect automatically
-            return elementsInEnumerator(FileManager.default.enumerator(atPath: sourcePath)).filter { $0.hasSuffix(".xcassets") }
+            return elementsInEnumerator(FileManager.default.enumerator(atPath: source)).filter { $0.hasSuffix(".xcassets") }
         }
     }()
 }
@@ -102,7 +102,7 @@ extension AssetChecker {
 
     /// List Assets used in the codebase, with the asset name as the key
     private func listUsedAssetLiterals() -> [String: [String]]  {
-        let enumerator = FileManager.default.enumerator(atPath: sourcePath)
+        let enumerator = FileManager.default.enumerator(atPath: source)
         
         var assetUsageMap: [String: [String]] = [:]
         
@@ -136,7 +136,7 @@ extension AssetChecker {
         
         for filename in files {
             // Build file paths
-            let filepath = "\(sourcePath)/\(filename)"
+            let filepath = "\(source)/\(filename)"
             
             // Get file contents
             if let fileContents = try? String(contentsOfFile: filepath, encoding: .utf8) {
