@@ -26,7 +26,18 @@ public struct AssetChecker: ParsableCommand {
     @Option(name: .long, help: "Path to the .assetcheckerignore file.")
     private var ignoreFile: String?
     
+    @Option(name: .long, help: "Name of the SwiftGen enumerations to check against, comma-separated")
+    private var swiftGenEnums: String? {
+        didSet {
+            guard let enumNames = swiftGenEnums else { return }
+            swiftGenEnumNames = enumNames.split(separator: ",")
+                                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        }
+    }
+    
     private var ignoredUnusedNames: [String] = []
+    
+    private var swiftGenEnumNames: [String] = []
     
     mutating public func run() throws {
         processIgnoreFile()
@@ -114,13 +125,17 @@ extension AssetChecker {
         func localizedStrings(inStringFile: String) -> [String] {
             var assetStringReferences = [String]()
             let namePattern = "([\\w-]+)"
-            let patterns = [
+            var patterns = [
                 "#imageLiteral\\(resourceName: \"\(namePattern)\"\\)", // Image Literal
                 "UIImage\\(named:\\s*\"\(namePattern)\"\\)", // Default UIImage call (Swift)
                 "UIImage imageNamed:\\s*\\@\"\(namePattern)\"", // Default UIImage call
                 "\\<image name=\"\(namePattern)\".*", // Storyboard resources
-                "R.image.\(namePattern)\\(\\)" //R.swift support
+                "R.image.\(namePattern)\\(\\)" // R.swift support
             ]
+            
+            let swiftGenPatterns = swiftGenEnumNames.map { "\($0).\(namePattern).image" } // SwiftGen support
+            patterns.append(contentsOf: swiftGenPatterns)
+            
             for p in patterns {
                 let regex = try? NSRegularExpression(pattern: p, options: [])
                 let range = NSRange(location:0, length:(inStringFile as NSString).length)
