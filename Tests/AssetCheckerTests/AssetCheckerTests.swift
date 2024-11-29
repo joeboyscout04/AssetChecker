@@ -1,5 +1,5 @@
 import XCTest
-@testable import AssetChecker
+@testable import assetchecker
 
 final class AssetCheckerTests: XCTestCase {
     func testExample() {
