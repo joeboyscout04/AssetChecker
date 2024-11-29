@@ -41,9 +41,9 @@ struct AssetFileLocator {
     
     func checkAssets() -> Results {
         
-        let availableAssets = listAssets(assetCatalogPaths)
+        let availableAssets = catalogAssets(assetCatalogPaths)
         let availableAssetNames = Set(availableAssets.map{$0.asset} )
-        let usedAssets = listUsedAssetLiterals()
+        let usedAssets = usedAssets()
         let usedAssetNames = Set(usedAssets.keys + ignoredUnusedNames)
 
         // Generate Warnings for Unused Assets
@@ -54,7 +54,7 @@ struct AssetFileLocator {
     }
     
     /// List assets in found asset catalogs
-    private func listAssets(_ paths: [String]) -> [(asset: String, catalog: String)] {
+    private func catalogAssets(_ paths: [String]) -> [(asset: String, catalog: String)] {
         
         return paths.flatMap { (catalog) -> [(asset: String, catalog: String)] in
             
@@ -69,7 +69,7 @@ struct AssetFileLocator {
     }
 
     /// List Assets used in the codebase, with the asset name as the key
-    private func listUsedAssetLiterals() -> [String: [String]]  {
+    private func usedAssets() -> [String: [String]]  {
         let enumerator = fileManager.enumerator(atPath: sourcePath)
         
         var assetUsageMap: [String: [String]] = [:]
@@ -79,7 +79,7 @@ struct AssetFileLocator {
             .filter { $0.hasSuffix(".m") || $0.hasSuffix(".swift") || $0.hasSuffix(".xib") || $0.hasSuffix(".storyboard") } ?? []
         
         /// Find sources of assets within the contents of a file
-        func localizedStrings(inStringFile: String) -> [String] {
+        func assetNames(in fileContents: String) -> [String] {
             var assetStringReferences = [String]()
             let namePattern = "([\\w-]+)"
             var patterns = [
@@ -96,10 +96,10 @@ struct AssetFileLocator {
             }
             for p in patterns {
                 let regex = try? NSRegularExpression(pattern: p, options: [])
-                let range = NSRange(location: 0, length: (inStringFile as NSString).length)
-                regex?.enumerateMatches(in: inStringFile, options: [], range: range) { result, _, _ in
+                let range = NSRange(location: 0, length: (fileContents as NSString).length)
+                regex?.enumerateMatches(in: fileContents, options: [], range: range) { result, _, _ in
                     if let r = result {
-                        var value = (inStringFile as NSString).substring(with: r.range(at: 1))
+                        var value = (fileContents as NSString).substring(with: r.range(at: 1))
                         if p.contains("UIImage\\(resource:") || p.contains("\\.") {
                             value = camelCaseToSnakeCase(value)
                         }
@@ -117,7 +117,7 @@ struct AssetFileLocator {
             // Get file contents
             if let fileContents = try? String(contentsOfFile: filepath, encoding: .utf8) {
                 // Find occurrences of asset names
-                let references = localizedStrings(inStringFile: fileContents)
+                let references = assetNames(in: fileContents)
                 
                 // assemble the map
                 for asset in references {
