@@ -47,8 +47,22 @@ struct AssetFileLocator {
         let usedAssetNames = Set(usedAssets.keys + ignoredUnusedNames)
 
         // Generate Warnings for Unused Assets
-        let unused = availableAssets.filter { (asset, catalog) -> Bool in !usedAssetNames.contains(asset) && !isIgnored(asset) }
-        let broken = usedAssets.filter { (assetName, references) -> Bool in !availableAssetNames.contains(assetName) && !isIgnored(assetName) }
+        let unused = availableAssets.filter { (asset, catalog) -> Bool in
+            
+            let isUsed = usedAssetNames.contains { name in
+                name.isAlphanumericMatch(with: asset)
+            }
+            
+            return !isUsed && !isIgnored(asset)
+        }
+        
+        let broken = usedAssets.filter { (assetName, references) -> Bool in
+            
+            let isAvailable = availableAssetNames.contains { name in
+                name.isAlphanumericMatch(with: assetName)
+            }
+            return !isAvailable && !isIgnored(assetName)
+        }
         
         return Results(unusedAssets: unused, brokenAssets: broken)
     }
@@ -88,10 +102,10 @@ struct AssetFileLocator {
                 "UIImage imageNamed:\\s*\\@\"\(namePattern)\"",
                 "\\<image name=\"\(namePattern)\".*",
                 "R.image.\(namePattern)\\(\\)",
-                "UIImage\\(resource:\\s*\\.\\(namePattern)\\)"
+                "UIImage\\(resource:\\s*\\.\(namePattern)\"\\)"
             ]
             for prefix in swiftgenPrefixes {
-                let swiftgenPattern = "\(prefix)\\.(\(namePattern))\\.image"
+                let swiftgenPattern = "\(prefix)\\.\(namePattern))\\.image"
                 patterns.append(swiftgenPattern)
             }
             for p in patterns {
@@ -99,10 +113,7 @@ struct AssetFileLocator {
                 let range = NSRange(location: 0, length: (fileContents as NSString).length)
                 regex?.enumerateMatches(in: fileContents, options: [], range: range) { result, _, _ in
                     if let r = result {
-                        var value = (fileContents as NSString).substring(with: r.range(at: 1))
-                        if p.contains("UIImage\\(resource:") || p.contains("\\.") {
-                            value = camelCaseToSnakeCase(value)
-                        }
+                        let value = (fileContents as NSString).substring(with: r.range(at: 1))
                         assetStringReferences.append(value)
                     }
                 }
@@ -138,11 +149,5 @@ struct AssetFileLocator {
         }
         return ignoreCount > 0
     }
-    
-    /// Helper function to convert camelCase to snake_case
-    private func camelCaseToSnakeCase(_ input: String) -> String {
-        let regex = try! NSRegularExpression(pattern: "([a-z])([A-Z])", options: [])
-        let range = NSRange(location: 0, length: input.count)
-        return regex.stringByReplacingMatches(in: input, options: [], range: range, withTemplate: "$1_$2").lowercased()
-    }
 }
+
