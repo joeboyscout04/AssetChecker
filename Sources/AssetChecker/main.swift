@@ -1,5 +1,6 @@
 import Foundation
 import ArgumentParser
+import AssetCheckerLib
 
 public struct AssetChecker: ParsableCommand {
     public init() {}
@@ -15,50 +16,44 @@ public struct AssetChecker: ParsableCommand {
     private var catalog: String?
     
     @Option(name: .long, help: "Comma-separated asset names to ignore")
-    private var ignore: String? {
-        didSet {
-            guard let ignoreNames = ignore else { return }
-            ignoredUnusedNames = ignoreNames.split(separator: ",")
-                                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        }
-    }
+    private var ignore: String?
     
     @Option(name: .long, help: "Path to the .assetcheckerignore file.")
     private var ignoreFile: String?
     
     @Option(name: .long, help: "Prefixes used in SwiftGen patterns to check, comma-separated")
-    private var swiftgenPrefixes: String? {
-        didSet {
-            guard let prefixList = swiftgenPrefixes else { return }
-            parsedSwiftgenPrefixes = prefixList
-                .split(separator: ",")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        }
-    }
+    private var swiftgenPrefixes: String?
     
     private var ignoredUnusedNames: [String] = []
     private var parsedSwiftgenPrefixes: [String] = []
     
     mutating public func run() throws {
         
+        let parsedSwiftgenPrefixes = swiftgenPrefixes?
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        
+        let ignoredUnusedNames = ignore?.split(separator: ",")
+                                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        
         let fileLocator = AssetFileLocator(
             sourcePath: source,
             catalog: catalog,
-            ignoredUnusedNames: ignoredUnusedNames,
+            ignoredUnusedNames: ignoredUnusedNames ?? [],
             ignoreFile: ignoreFile,
-            swiftgenPrefixes: parsedSwiftgenPrefixes)
+            swiftgenPrefixes: parsedSwiftgenPrefixes ?? [])
         print("Searching sources in \(source) for assets in \(fileLocator.assetCatalogPaths)")
         
         let results = fileLocator.checkAssets()
 
         // Generate Warnings for Unused Assets
         results.unusedAssets.forEach {
-            print("\($1):: warning: [Asset Unused] \($0)")
+            print("\($0.catalog): warning: [Asset Unused] \($0.asset)")
         }
 
         // Generate Error for broken Assets
         results.brokenAssets.forEach {
-            print("\($1.first ?? $0):: error: [Asset Missing] \($0)")
+            print("\($1.first ?? $0): error: [Asset Missing] \($0)")
         }
 
         if results.brokenAssets.count > 0 {

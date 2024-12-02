@@ -1,13 +1,18 @@
 import Foundation
 
-struct AssetFileLocator {
+public struct AssetFileLocator {
     
-    struct Results {
-        let unusedAssets: [(asset: String, catalog: String)]
-        let brokenAssets: [String: [String]]
+   public struct Results {
+       public let unusedAssets: [AssetAndCatalog]
+       public let brokenAssets: [String: [String]]
     }
     
-    init(sourcePath: String,
+    public struct AssetAndCatalog: Equatable {
+        public let asset: String
+        public let catalog: String
+    }
+    
+    public init(sourcePath: String,
          catalog: String?,
          ignoredUnusedNames: [String],
          ignoreFile: String?,
@@ -26,8 +31,9 @@ struct AssetFileLocator {
         
         self.ignoredUnusedNames = {
             let ignoreFilePath = ignoreFile ?? "\(fileManager.currentDirectoryPath)/.assetcheckerignore"
-            guard let data = try? String(contentsOfFile: ignoreFilePath, encoding: .utf8) else { return ignoredUnusedNames }
-            return data.components(separatedBy: .newlines)
+            guard let data = fileManager.contents(atPath: ignoreFilePath),
+                  let fileContent = String(data: data, encoding: .utf8) else { return ignoredUnusedNames }
+            return fileContent.components(separatedBy: .newlines)
         }()
         
         self.fileManager = fileManager
@@ -35,11 +41,11 @@ struct AssetFileLocator {
     
     private let fileManager: FileManager
     let sourcePath: String
-    let assetCatalogPaths: [String]
+    public let assetCatalogPaths: [String]
     let ignoredUnusedNames: [String]
     private let swiftgenPrefixes: [String]
     
-    func checkAssets() -> Results {
+    public func checkAssets() -> Results {
         
         let availableAssets = catalogAssets(assetCatalogPaths)
         let availableAssetNames = Set(availableAssets.map{$0.asset} )
@@ -47,13 +53,13 @@ struct AssetFileLocator {
         let usedAssetNames = Set(usedAssets.keys + ignoredUnusedNames)
 
         // Generate Warnings for Unused Assets
-        let unused = availableAssets.filter { (asset, catalog) -> Bool in
+        let unused = availableAssets.filter { assetAndCatalog -> Bool in
             
             let isUsed = usedAssetNames.contains { name in
-                name.isAlphanumericMatch(with: asset)
+                name.isAlphanumericMatch(with: assetAndCatalog.asset)
             }
             
-            return !isUsed && !isIgnored(asset)
+            return !isUsed && !isIgnored(assetAndCatalog.asset)
         }
         
         let broken = usedAssets.filter { (assetName, references) -> Bool in
@@ -68,9 +74,9 @@ struct AssetFileLocator {
     }
     
     /// List assets in found asset catalogs
-    private func catalogAssets(_ paths: [String]) -> [(asset: String, catalog: String)] {
+    private func catalogAssets(_ paths: [String]) -> [AssetAndCatalog] {
         
-        return paths.flatMap { (catalog) -> [(asset: String, catalog: String)] in
+        return paths.flatMap { (catalog) -> [AssetAndCatalog] in
             
             let extensionName = "imageset"
             let enumerator = fileManager.enumerator(atPath: catalog)
@@ -78,7 +84,7 @@ struct AssetFileLocator {
                 .filter { $0.hasSuffix(extensionName) }                             // Is Asset
                 .map { $0.replacingOccurrences(of: ".\(extensionName)", with: "") } // Remove extension
                 .map { $0.components(separatedBy: "/").last ?? $0 }                 // Remove folder path
-                .map { (asset: $0, catalog: catalog)} ?? []
+                .map { AssetAndCatalog(asset: $0, catalog: catalog)} ?? []
         }
     }
 
@@ -97,15 +103,17 @@ struct AssetFileLocator {
             var assetStringReferences = [String]()
             let namePattern = "([\\w-]+)"
             var patterns = [
-                "#imageLiteral\\(resourceName: \"\(namePattern)\"\\)",
-                "UIImage\\(named:\\s*\"\(namePattern)\"\\)",
-                "UIImage imageNamed:\\s*\\@\"\(namePattern)\"",
+                "#imageLiteral\\(resourceName:\\s*\"\(namePattern)\"\\)",
+                "(?<![a-zA-Z0-9])UIImage\\(named:\\s*\"\(namePattern)\"\\)",
+                "(?<![a-zA-Z0-9])UIImage imageNamed:\\s*\\@\"\(namePattern)\"",
                 "\\<image name=\"\(namePattern)\".*",
-                "R.image.\(namePattern)\\(\\)",
-                "UIImage\\(resource:\\s*\\.\(namePattern)\"\\)"
+                "R\\.image\\.\(namePattern)\\(\\)",
+                "(?<![a-zA-Z0-9])UIImage\\(resource:\\s*\\.\(namePattern)\\)",
+                "(?<![a-zA-Z0-9])Image\\(\"\(namePattern)\"\\)",
+                "(?<![a-zA-Z0-9])Image\\(uiImage:\\s*\\.\(namePattern)\\)"
             ]
             for prefix in swiftgenPrefixes {
-                let swiftgenPattern = "\(prefix)\\.\(namePattern))\\.image"
+                let swiftgenPattern = "(?<![a-zA-Z0-9])\(prefix)\\.\(namePattern)\\.image"
                 patterns.append(swiftgenPattern)
             }
             for p in patterns {
@@ -126,14 +134,15 @@ struct AssetFileLocator {
             let filepath = "\(sourcePath)/\(filename)"
             
             // Get file contents
-            if let fileContents = try? String(contentsOfFile: filepath, encoding: .utf8) {
+            if let fileData = fileManager.contents(atPath: filepath),
+            let fileContents = String(data: fileData, encoding: .utf8) {
                 // Find occurrences of asset names
                 let references = assetNames(in: fileContents)
                 
                 // assemble the map
                 for asset in references {
                     let updatedReferences = assetUsageMap[asset] ?? []
-                    assetUsageMap[asset] = updatedReferences + [filename]
+                    assetUsageMap[asset] = updatedReferences + [filepath]
                 }
             }
         }
