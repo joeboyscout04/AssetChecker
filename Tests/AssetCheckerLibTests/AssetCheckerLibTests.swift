@@ -18,6 +18,7 @@ final class AssetCheckerTests: XCTestCase {
             let imageSwiftgen = Asset.swiftGenImage.image
             let imageResource = UIImage(resource: .resourceImage)
             let imageSwiftUI = Image("swiftui-image")
+            let imageSwiftResource = Image(.swiftUIResourceImage)
             let imageSwiftUIKit = Image(uiImage: .swiftuiKitImage)
             
         }
@@ -134,7 +135,8 @@ final class AssetCheckerTests: XCTestCase {
             "swift-gen-image.imageset",
             "resource-image.imageset",
             "swiftui-image.imageset",
-            "swiftui-kit-image.imageset"
+            "swiftui-kit-image.imageset",
+            "swiftui-resource-image.imageset"
         ]
         
         mockFileManager.sourcePath = sourcePath
@@ -181,7 +183,8 @@ final class AssetCheckerTests: XCTestCase {
                                               "swiftGenImage": expectedPath,
                                               "resourceImage": expectedPath,
                                               "swiftui-image": expectedPath,
-                                              "swiftuiKitImage": expectedPath])
+                                              "swiftuiKitImage": expectedPath,
+                                              "swiftUIResourceImage": expectedPath])
     }
 }
 

@@ -110,6 +110,7 @@ public struct AssetFileLocator {
                 "R\\.image\\.\(namePattern)\\(\\)",
                 "(?<![a-zA-Z0-9])UIImage\\(resource:\\s*\\.\(namePattern)\\)",
                 "(?<![a-zA-Z0-9])Image\\(\"\(namePattern)\"\\)",
+                "(?<![a-zA-Z0-9])Image\\(\\.\(namePattern)\\)",
                 "(?<![a-zA-Z0-9])Image\\(uiImage:\\s*\\.\(namePattern)\\)"
             ]
             for prefix in swiftgenPrefixes {
