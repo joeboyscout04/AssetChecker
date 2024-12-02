@@ -33,6 +33,10 @@ For these types of references:
 - `UIImage(named: )` (swift)
 - `[UIImage imageNamed: ]` (ObjC)
 - `R.image.name()` (supports [R.Swift](https://github.com/mac-cain13/R.swift))
+- `UIImage(resource: )` (swift)
+- `Image("")` (SwiftUI)
+- `Image(uiImage: )` (SwiftUI)
+- `Asset.name.image` (supports [SwiftGen](https://github.com/SwiftGen/SwiftGen))
 
 Then the script will automatically (On build)
   - Raise Errors for **Missing Assets**
@@ -55,7 +59,7 @@ ${PODS_ROOT}/AssetChecker/run
 
 ### [Mint](https://github.com/yonaskolb/mint)
 ```
-$ mint install github_name/repo_name
+$ mint install joeboyscout04/AssetChecker
 ```
 Add the following `Run Script` in XCode, this will run the script at every build.
 
@@ -80,6 +84,7 @@ The following command line arguments are available to the script.
 --source (optional) Absolute path to your source directory.  Defaults to $SRCROOT
 --ignore (optional) A comma-separated list of assets which should be ignored by the script (no file extension needed)
 --ignoreFile (optional) Path to the ignore file.  If this option is used, --ignore option will be ignored.  By default, $SRCROOT/.assetcheckerignore.
+--swiftgen-prefixes (optional) A comma-separated list of prefixes which are used by SwiftGen.
 ```
 
 ## Ignore file

@@ -1,10 +1,14 @@
 import Foundation
 
-struct AssetCheckerError: Error {
+public struct AssetCheckerError: Error {
     let brokenAssetCount: Int
+    
+    public init(brokenAssetCount: Int) {
+        self.brokenAssetCount = brokenAssetCount
+    }
 }
 extension AssetCheckerError: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         "👮‍♀️ There were \(brokenAssetCount) broken assets found!"
     }
 }
